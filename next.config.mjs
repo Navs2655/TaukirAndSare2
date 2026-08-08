@@ -2,7 +2,7 @@
 
 // Single source of truth — change this one line when you move to your
 // custom domain (set it to "" once basePath is no longer needed).
-const BASE_PATH = "/TaukirandSara";
+const BASE_PATH = "/TaukirAndSare2";
 
 const nextConfig = {
   reactStrictMode: true,
