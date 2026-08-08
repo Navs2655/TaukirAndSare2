@@ -55,15 +55,25 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable} ${amiri.variable}`}>
       <body className="font-body bg-background text-champagne antialiased">
+        {/* Private analytics — dashboard only visible to you at
+            https://YOUR-CODE.goatcounter.com after signing up at goatcounter.com.
+            Replace YOUR-CODE below with your actual site code. */}
+        <script
+          data-goatcounter="https://YOUR-CODE.goatcounter.com/count"
+          async
+          src="https://gc.zgo.at/count.js"
+        />
         <Preloader />
         <FilmGrain />
         <SmoothScrollProvider>
           <GlobalStarField />
           <AudioProvider>
-            <InvitationGate navigation={<Navigation />}>
+            <InvitationGate
+              navigation={<Navigation />}
+              audioToggle={<AmbientAudioToggle />}
+            >
               {children}
             </InvitationGate>
-            <AmbientAudioToggle />
           </AudioProvider>
         </SmoothScrollProvider>
       </body>

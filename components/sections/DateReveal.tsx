@@ -57,12 +57,6 @@ export default function DateReveal() {
     setBurstKey((k) => k + 1);
   };
 
-  const handleReplay = () => {
-    setRevealed(false);
-    // brief delay so the close animation is visible before it can reopen
-    setTimeout(() => handleReveal(), 900);
-  };
-
   return (
     <section
       id="date-reveal"
@@ -209,18 +203,6 @@ export default function DateReveal() {
         >
           {revealed ? "The date is set" : "Tap to Reveal"}
         </motion.p>
-
-        {revealed && (
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1 }}
-            onClick={handleReplay}
-            className="mt-4 text-[11px] tracking-wide text-champagne/30 hover:text-gold/70 transition-colors duration-300 underline underline-offset-4"
-          >
-            Play again
-          </motion.button>
-        )}
       </div>
     </section>
   );

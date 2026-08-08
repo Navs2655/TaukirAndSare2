@@ -20,13 +20,13 @@ function fadeUp(delay: number) {
 export default function InvitationGate({
   children,
   navigation,
+  audioToggle,
 }: {
   children: ReactNode;
   navigation: ReactNode;
+  audioToggle: ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [gateRemoved, setGateRemoved] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -38,9 +38,7 @@ export default function InvitationGate({
     const alreadyOpened = sessionStorage.getItem(SESSION_KEY) === "true";
     if (alreadyOpened || prefersReducedMotion) {
       setIsOpen(true);
-      setGateRemoved(true);
     }
-    setHydrated(true);
   }, []);
 
   useEffect(() => {
@@ -58,12 +56,9 @@ export default function InvitationGate({
     play(); // tied directly to this click, so autoplay restrictions allow it
   };
 
-  // Avoid a flash of the gate before we know session state
-  if (!hydrated) return null;
-
   return (
     <>
-      <AnimatePresence onExitComplete={() => setGateRemoved(true)}>
+      <AnimatePresence>
         {!isOpen && (
           <motion.div
             key="gate"
@@ -156,10 +151,17 @@ export default function InvitationGate({
         )}
       </AnimatePresence>
 
-      {gateRemoved && navigation}
-      <div className={isOpen ? "" : "invisible"} aria-hidden={!isOpen}>
-        {children}
-      </div>
+      {/* Nothing from the main site — nav, audio toggle, or content — exists
+          in the DOM until the invitation is actually opened. This isn't just
+          visually hidden; it isn't mounted, so entrance animations play fresh
+          exactly when revealed instead of finishing silently beforehand. */}
+      {isOpen && (
+        <>
+          {navigation}
+          {children}
+          {audioToggle}
+        </>
+      )}
     </>
   );
 }
