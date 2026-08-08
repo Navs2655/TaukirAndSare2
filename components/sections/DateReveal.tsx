@@ -1,0 +1,227 @@
+"use client";
+
+import { useState, useMemo, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import GeometricStar from "@/components/ui/GeometricStar";
+
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+// One-shot spark burst — plays once on reveal, then unmounts. Not a loop,
+// so it never keeps consuming resources after the moment has passed.
+function SparkBurst() {
+  const sparks = useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, i) => {
+        const angle = (i / 14) * Math.PI * 2;
+        const distance = 70 + Math.random() * 50;
+        return {
+          id: i,
+          x: Math.cos(angle) * distance,
+          y: Math.sin(angle) * distance,
+          size: Math.random() * 3 + 1.5,
+          delay: Math.random() * 0.15,
+        };
+      }),
+    []
+  );
+
+  return (
+    <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+      {sparks.map((s) => (
+        <motion.span
+          key={s.id}
+          className="absolute top-1/2 left-1/2 rounded-full bg-gold"
+          style={{ width: s.size, height: s.size }}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+          animate={{ x: s.x, y: s.y, opacity: 0, scale: 0.4 }}
+          transition={{ duration: 1.1, delay: s.delay, ease: EASE }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function DateReveal() {
+  const [revealed, setRevealed] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    setReducedMotion(
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }, []);
+
+  const handleReveal = () => {
+    setRevealed(true);
+    setBurstKey((k) => k + 1);
+  };
+
+  const handleReplay = () => {
+    setRevealed(false);
+    // brief delay so the close animation is visible before it can reopen
+    setTimeout(() => handleReveal(), 900);
+  };
+
+  return (
+    <section
+      id="date-reveal"
+      className="relative min-h-screen w-full flex flex-col items-center justify-center px-6 py-32 overflow-hidden"
+    >
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(200,162,79,0.1) 0%, rgba(9,9,9,0) 70%)",
+        }}
+      />
+
+      <motion.span
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10 font-body text-gold text-xs tracking-luxury uppercase mb-4"
+      >
+        A Blessed Date Awaits
+      </motion.span>
+
+      <motion.h2
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9, ease: EASE }}
+        className="relative z-10 font-heading text-3xl md:text-4xl text-champagne/90 mb-16 text-center"
+      >
+        Break the Seal to Reveal It
+      </motion.h2>
+
+      <div className="relative z-10 flex flex-col items-center">
+        <button
+          type="button"
+          onClick={revealed ? undefined : handleReveal}
+          disabled={revealed}
+          aria-label={
+            revealed
+              ? "Wedding date revealed: 10th November 2026"
+              : "Tap to reveal the wedding date"
+          }
+          className="relative w-40 h-40 md:w-52 md:h-52 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-8 rounded-full disabled:cursor-default"
+        >
+          {/* Revealed date — sits behind the seal, fades/scales in as it parts */}
+          <AnimatePresence>
+            {revealed && (
+              <motion.div
+                key={`date-${burstKey}`}
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.8, delay: 0.5, ease: EASE }}
+                className="absolute inset-0 flex flex-col items-center justify-center"
+              >
+                <span className="font-heading text-2xl md:text-3xl text-gradient-gold whitespace-nowrap">
+                  10th Nov
+                </span>
+                <span className="font-body text-champagne/60 text-xs tracking-luxury uppercase mt-1">
+                  2026
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Spark burst, one-shot — skipped for reduced motion */}
+          <AnimatePresence>
+            {revealed && !reducedMotion && <SparkBurst key={burstKey} />}
+          </AnimatePresence>
+
+          {/* Seal halves — plain gradient circles that slide apart */}
+          <div className="absolute inset-0 overflow-hidden rounded-l-full">
+            <motion.div
+              animate={
+                revealed
+                  ? { x: "-55%", rotate: -12, opacity: 0 }
+                  : { x: "0%", rotate: 0, opacity: 1 }
+              }
+              transition={{ duration: 0.9, ease: EASE }}
+              className="absolute inset-0 w-[200%]"
+              style={{
+                background:
+                  "radial-gradient(circle at 30% 30%, rgba(200,162,79,0.15) 0%, rgba(9,9,9,0.4) 70%)",
+                border: "1px solid rgba(200,162,79,0.4)",
+                borderRadius: "9999px",
+              }}
+            />
+          </div>
+          <div className="absolute inset-0 overflow-hidden rounded-r-full">
+            <motion.div
+              animate={
+                revealed
+                  ? { x: "55%", rotate: 12, opacity: 0 }
+                  : { x: "0%", rotate: 0, opacity: 1 }
+              }
+              transition={{ duration: 0.9, ease: EASE }}
+              className="absolute inset-0 w-[200%] -left-full"
+              style={{
+                background:
+                  "radial-gradient(circle at 70% 30%, rgba(200,162,79,0.15) 0%, rgba(9,9,9,0.4) 70%)",
+                border: "1px solid rgba(200,162,79,0.4)",
+                borderRadius: "9999px",
+              }}
+            />
+          </div>
+
+          {/* Whole star motif, centered — fades out as the halves part */}
+          <motion.div
+            animate={
+              revealed
+                ? { opacity: 0, scale: 1.15 }
+                : { opacity: 1, scale: 1 }
+            }
+            transition={{ duration: 0.6, ease: EASE }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          >
+            <div className="w-24 h-24 md:w-32 md:h-32">
+              <GeometricStar className="w-full h-full" />
+            </div>
+          </motion.div>
+
+          {/* Ambient pulse while unrevealed — skipped for reduced motion */}
+          {!revealed && !reducedMotion && (
+            <motion.span
+              className="absolute inset-0 rounded-full pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(200,162,79,0.2) 0%, rgba(200,162,79,0) 70%)",
+              }}
+              animate={{ scale: [1, 1.08, 1], opacity: [0.5, 0.9, 0.5] }}
+              transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+              aria-hidden="true"
+            />
+          )}
+        </button>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="font-body text-champagne/40 text-xs tracking-luxury uppercase mt-8"
+        >
+          {revealed ? "The date is set" : "Tap to Reveal"}
+        </motion.p>
+
+        {revealed && (
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1 }}
+            onClick={handleReplay}
+            className="mt-4 text-[11px] tracking-wide text-champagne/30 hover:text-gold/70 transition-colors duration-300 underline underline-offset-4"
+          >
+            Play again
+          </motion.button>
+        )}
+      </div>
+    </section>
+  );
+}

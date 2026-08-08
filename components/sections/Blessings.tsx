@@ -2,25 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
+import GeometricStar from "@/components/ui/GeometricStar";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const AUTO_ADVANCE_MS = 7000;
-
-// Eight-pointed star (rub el hizb) — a traditional Islamic geometric motif,
-// used sparingly here as a single ornament rather than a repeated pattern.
-function GeometricStar({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
-      <g fill="none" stroke="#C8A24F" strokeWidth="1">
-        <polygon points="50,5 61,39 97,39 68,60 79,95 50,74 21,95 32,60 3,39 39,39" />
-        <polygon
-          points="50,5 61,39 97,39 68,60 79,95 50,74 21,95 32,60 3,39 39,39"
-          transform="rotate(45 50 50)"
-        />
-      </g>
-    </svg>
-  );
-}
 
 interface BlessingItem {
   arabic: string;

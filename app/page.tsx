@@ -1,4 +1,5 @@
 import Hero from "@/components/sections/Hero";
+import DateReveal from "@/components/sections/DateReveal";
 import Story from "@/components/sections/Story";
 import Details from "@/components/sections/Details";
 import Countdown from "@/components/sections/Countdown";
@@ -10,6 +11,8 @@ export default function Home() {
   return (
     <main className="relative z-10">
       <Hero />
+      <SectionDivider />
+      <DateReveal />
       <SectionDivider />
       <Story />
       <SectionDivider />
