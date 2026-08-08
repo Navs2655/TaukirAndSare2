@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-cormorant: "Cormorant Garamond", serif;
+  --font-inter: "Inter", sans-serif;
+  --font-amiri: "Amiri", serif;
+}
+
+html {
+  scroll-behavior: auto; /* Lenis handles smooth scroll instead */
+  /* Prevent Android/Samsung browsers from auto-inflating font size on mobile,
+     which silently widens fixed-width layouts (like the countdown) past the
+     viewport — a behavior iOS Safari doesn't have, hence the iOS/Android gap. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background-color: #090909;
+  color: #f7f3ea;
+  overflow-x: hidden;
+}
+
+/* Thin luxury scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090909;
+}
+::-webkit-scrollbar-thumb {
+  background: #c8a24f;
+  border-radius: 4px;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -1%); }
+  20% { transform: translate(1%, 1%); }
+  30% { transform: translate(-1%, 1%); }
+  40% { transform: translate(1%, -1%); }
+  50% { transform: translate(-1%, -1%); }
+  60% { transform: translate(1%, 1%); }
+  70% { transform: translate(-1%, 1%); }
+  80% { transform: translate(1%, -1%); }
+  90% { transform: translate(-1%, -1%); }
+}
+.animate-grain {
+  animation: grain 1s steps(6) infinite;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #c8a24f 0%, #f7e7c1 50%, #c8a24f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #c8a24f; /* fallback for browsers without background-clip:text support */
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .text-gradient-gold {
+    color: transparent;
+  }
+}
