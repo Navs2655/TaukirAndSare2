@@ -1,9 +1,14 @@
 "use client";
 
-import { useState, useEffect, ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef, ReactNode, MouseEvent as ReactMouseEvent } from "react";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import Magnetic from "@/components/ui/Magnetic";
 import FloatingParticles from "@/components/ui/FloatingParticles";
+import SparkBurst from "@/components/ui/SparkBurst";
+import OrnamentalCorner from "@/components/ui/OrnamentalCorner";
+import ArchMotif from "@/components/ui/ArchMotif";
+import JaaliPattern from "@/components/ui/JaaliPattern";
+import GeometricStar from "@/components/ui/GeometricStar";
 import { useAudio } from "@/components/layout/AudioProvider";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -26,8 +31,19 @@ export default function InvitationGate({
   navigation: ReactNode;
   audioToggle: ReactNode;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // gate fully removed from DOM
+  const [contentMounted, setContentMounted] = useState(false); // main site mounted
+  const [reacting, setReacting] = useState(false);
+  const [opening, setOpening] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+
+  // Subtle desktop-only tilt following the pointer — skipped on touch since
+  // mousemove doesn't fire meaningfully there anyway.
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const springTiltX = useSpring(tiltX, { stiffness: 120, damping: 20 });
+  const springTiltY = useSpring(tiltY, { stiffness: 120, damping: 20 });
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -38,22 +54,62 @@ export default function InvitationGate({
     const alreadyOpened = sessionStorage.getItem(SESSION_KEY) === "true";
     if (alreadyOpened || prefersReducedMotion) {
       setIsOpen(true);
+      setContentMounted(true);
     }
   }, []);
 
+  // Scroll stays locked until the main site is actually mounted and visible —
+  // not tied to the gate's own fade timing, so nothing scrolls prematurely.
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "" : "hidden";
+    document.body.style.overflow = contentMounted ? "" : "hidden";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [contentMounted]);
 
   const { play } = useAudio();
 
+  const handleCardMouseMove = (e: ReactMouseEvent) => {
+    if (reducedMotion) return;
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width - 0.5;
+    const relY = (e.clientY - rect.top) / rect.height - 0.5;
+    tiltY.set(relX * 8);
+    tiltX.set(relY * -8);
+  };
+
+  const handleCardMouseLeave = () => {
+    tiltX.set(0);
+    tiltY.set(0);
+  };
+
   const handleOpen = () => {
-    setIsOpen(true);
     sessionStorage.setItem(SESSION_KEY, "true");
-    play(); // tied directly to this click, so autoplay restrictions allow it
+    play();
+
+    if (reducedMotion) {
+      setIsOpen(true);
+      setContentMounted(true);
+      return;
+    }
+
+    // Phase 1 (0–220ms) — the card reacts to the click before anything opens
+    setReacting(true);
+
+    // Phase 2 & 3 (220ms onward) — cover opens, light/particles burst,
+    // layered animations orchestrated via the `opening` flag below
+    setTimeout(() => setOpening(true), 220);
+
+    // Main site mounts partway through the gate's own fade, so its entrance
+    // animation cross-fades with the dissolving cover instead of popping in
+    // after a hard cut.
+    setTimeout(() => setContentMounted(true), 1400);
+
+    // Gate is fully removed only once its fade+blur animation has actually
+    // finished playing — total sequence lands around 2.6s from the click.
+    setTimeout(() => setIsOpen(true), 2600);
   };
 
   return (
@@ -62,91 +118,218 @@ export default function InvitationGate({
         {!isOpen && (
           <motion.div
             key="gate"
-            className="fixed inset-0 z-[60] flex"
-            exit={{ transitionEnd: { display: "none" } }}
+            className={`fixed inset-0 z-[60] flex items-center justify-center overflow-hidden px-6 ${
+              opening ? "pointer-events-none" : ""
+            }`}
+            animate={
+              opening
+                ? { opacity: 0, filter: "blur(10px)" }
+                : { opacity: 1, filter: "blur(0px)" }
+            }
+            transition={{ duration: 1, delay: opening ? 1.1 : 0, ease: EASE }}
           >
-            {/* Ambient motion on the closed card, matching the site's existing language */}
-            <div className="absolute inset-0 z-0 pointer-events-none">
+            {/* Ambient background layer — jaali texture, soft light, particles */}
+            <JaaliPattern className="absolute inset-0 opacity-[0.05]" />
+            <motion.div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(ellipse 60% 50% at 50% 40%, rgba(200,162,79,0.1) 0%, rgba(9,9,9,0) 70%)",
+              }}
+              animate={
+                !reducedMotion
+                  ? { opacity: [0.6, 1, 0.6] }
+                  : {}
+              }
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <div className="absolute inset-0 pointer-events-none">
               <FloatingParticles count={14} />
             </div>
 
-            {/* Center card content — fades first */}
+            {/* Decorative arch, framing the card like a mehrab/mandap doorway */}
             <motion.div
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: EASE }}
-              className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pointer-events-none"
+              animate={
+                opening
+                  ? { scale: 1.12, opacity: 0 }
+                  : { scale: 1, opacity: 0.5 }
+              }
+              transition={{ duration: 1.3, delay: 0.2, ease: EASE }}
+              className="absolute w-72 md:w-96 h-[85%] pointer-events-none"
             >
-              <motion.p
-                {...fadeUp(0.2)}
-                className="font-arabic text-gold text-xl mb-6"
-                lang="ar"
-                dir="rtl"
-              >
-                بِسْمِ اللَّهِ
-              </motion.p>
+              <ArchMotif className="w-full h-full" />
+            </motion.div>
 
+            {/* The invitation card itself */}
+            <div style={{ perspective: 1200 }} className="relative z-10">
               <motion.div
-                {...fadeUp(0.45)}
-                className="relative border border-gold/30 rounded-full w-24 h-24 flex items-center justify-center mb-6"
+                ref={cardRef}
+                onMouseMove={handleCardMouseMove}
+                onMouseLeave={handleCardMouseLeave}
+                style={{
+                  rotateX: springTiltX,
+                  rotateY: springTiltY,
+                  transformOrigin: "bottom center",
+                }}
+                initial={{ opacity: 0, y: 24, scale: 0.94 }}
+                animate={
+                  opening
+                    ? { rotateX: -105, opacity: 0 }
+                    : reacting
+                    ? { opacity: 1, y: 0, scale: [1, 0.97, 1.01, 1] }
+                    : { opacity: 1, y: 0, scale: 1 }
+                }
+                transition={
+                  opening
+                    ? { duration: 1, delay: 0.1, ease: EASE }
+                    : reacting
+                    ? { duration: 0.4, ease: EASE }
+                    : { duration: 1.1, ease: EASE }
+                }
+                className="relative w-full max-w-[300px] sm:max-w-sm px-8 py-12 sm:px-10 sm:py-14"
               >
-                <motion.span
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    background:
-                      "radial-gradient(circle, rgba(200,162,79,0.25) 0%, rgba(200,162,79,0) 70%)",
-                  }}
-                  animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.1, 1] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  aria-hidden="true"
-                />
-                <span className="relative font-heading text-3xl text-gradient-gold">
-                  T&nbsp;&amp;&nbsp;S
-                </span>
-              </motion.div>
+                {/* Back paper layer — slight offset, gives layered-paper depth */}
+                <div className="absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-sm border border-gold/10 bg-white/[0.015]" />
 
-              <motion.p
-                {...fadeUp(0.65)}
-                className="font-body text-champagne/50 text-xs tracking-luxury uppercase mb-10"
-              >
-                You Are Invited
-              </motion.p>
+                {/* Front paper layer */}
+                <div className="absolute inset-0 rounded-sm border border-gold/25 bg-white/[0.025] backdrop-blur-[1px]" />
 
-              <motion.div {...fadeUp(0.9)}>
-                <Magnetic>
-                  <motion.button
-                    onClick={handleOpen}
-                    whileTap={{ scale: 0.95 }}
-                    className="pointer-events-auto relative px-8 py-3.5 font-body text-xs tracking-luxury uppercase text-champagne border border-gold/50 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-4"
-                    aria-label="Open the invitation"
+                {/* Ornamental corners */}
+                <OrnamentalCorner className="absolute top-2 left-2 w-10 h-10 sm:w-12 sm:h-12" />
+                <OrnamentalCorner className="absolute top-2 right-2 w-10 h-10 sm:w-12 sm:h-12 -scale-x-100" />
+                <OrnamentalCorner className="absolute bottom-2 left-2 w-10 h-10 sm:w-12 sm:h-12 -scale-y-100" />
+                <OrnamentalCorner className="absolute bottom-2 right-2 w-10 h-10 sm:w-12 sm:h-12 -scale-x-100 -scale-y-100" />
+
+                {/* Card content */}
+                <div className="relative flex flex-col items-center text-center">
+                  <motion.p
+                    {...fadeUp(0.2)}
+                    className="font-arabic text-gold text-lg sm:text-xl mb-6"
+                    lang="ar"
+                    dir="rtl"
+                  >
+                    بِسْمِ اللَّهِ
+                  </motion.p>
+
+                  {/* Seal emblem */}
+                  <motion.div
+                    {...fadeUp(0.45)}
+                    animate={
+                      reacting
+                        ? { scale: [1, 1.12, 1] }
+                        : opening
+                        ? { scale: 1.3, opacity: 0 }
+                        : { opacity: 1, scale: 1 }
+                    }
+                    transition={
+                      reacting
+                        ? { duration: 0.5, ease: EASE }
+                        : opening
+                        ? { duration: 0.7, delay: 0.05, ease: EASE }
+                        : { duration: 0.9, delay: 0.45, ease: EASE }
+                    }
+                    className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mb-6"
                   >
                     <motion.span
                       className="absolute inset-0 rounded-full border border-gold/40"
-                      animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0, 0.6] }}
-                      transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                      aria-hidden="true"
+                      animate={
+                        reacting || opening
+                          ? { opacity: [0.5, 1, 0.5], scale: [1, 1.15, 1] }
+                          : !reducedMotion
+                          ? { opacity: [0.4, 0.8, 0.4], scale: [1, 1.08, 1] }
+                          : {}
+                      }
+                      transition={{
+                        duration: reacting || opening ? 0.6 : 2.8,
+                        repeat: reacting || opening ? 0 : Infinity,
+                        ease: "easeInOut",
+                      }}
                     />
-                    <span className="relative">Open Invitation</span>
-                  </motion.button>
-                </Magnetic>
-              </motion.div>
-            </motion.div>
+                    <span
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background:
+                          "radial-gradient(circle, rgba(200,162,79,0.3) 0%, rgba(200,162,79,0) 70%)",
+                      }}
+                    />
+                    <div className="relative w-12 h-12 sm:w-14 sm:h-14">
+                      <GeometricStar className="w-full h-full" />
+                    </div>
+                  </motion.div>
 
-            {/* Left door */}
-            <motion.div
-              initial={{ x: 0 }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ duration: 1.1, delay: 0.35, ease: EASE }}
-              className="w-1/2 h-full bg-background border-r border-gold/15"
-            />
-            {/* Right door */}
-            <motion.div
-              initial={{ x: 0 }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ duration: 1.1, delay: 0.35, ease: EASE }}
-              className="w-1/2 h-full bg-background border-l border-gold/15"
-            />
+                  <motion.p
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={
+                      opening ? { opacity: 0 } : { opacity: 1, y: 0 }
+                    }
+                    transition={{ duration: opening ? 0.5 : 0.9, delay: opening ? 0 : 0.65, ease: EASE }}
+                    className="font-body text-champagne/50 text-xs tracking-luxury uppercase mb-1"
+                  >
+                    You Are Invited
+                  </motion.p>
+
+                  <motion.p
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={
+                      opening ? { opacity: 0 } : { opacity: 1, y: 0 }
+                    }
+                    transition={{ duration: opening ? 0.5 : 0.9, delay: opening ? 0 : 0.75, ease: EASE }}
+                    className="font-heading text-champagne/70 text-base sm:text-lg mb-10"
+                  >
+                    Taukir &amp; Sara
+                  </motion.p>
+
+                  {/* Open Invitation — integrated label, not a standard pill button */}
+                  <motion.div {...fadeUp(1)}>
+                    <Magnetic>
+                      <button
+                        onClick={handleOpen}
+                        className="group pointer-events-auto relative flex items-center gap-2 font-body text-xs tracking-luxury uppercase text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-4"
+                        aria-label="Open the invitation"
+                      >
+                        <span className="relative">
+                          Open Invitation
+                          <span className="absolute left-0 -bottom-1.5 w-full h-px bg-gold/40 origin-left scale-x-75 group-hover:scale-x-100 transition-transform duration-500 ease-out" />
+                        </span>
+                        <motion.span
+                          animate={{ x: [0, 4, 0] }}
+                          transition={{
+                            duration: 1.8,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                          aria-hidden="true"
+                        >
+                          →
+                        </motion.span>
+                      </button>
+                    </Magnetic>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Light burst + particle burst on opening */}
+            {opening && (
+              <>
+                <motion.div
+                  initial={{ scale: 0, opacity: 0.6 }}
+                  animate={{ scale: 4, opacity: 0 }}
+                  transition={{ duration: 1.3, delay: 0.3, ease: EASE }}
+                  className="absolute w-40 h-40 rounded-full pointer-events-none"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(200,162,79,0.5) 0%, rgba(200,162,79,0) 70%)",
+                  }}
+                  aria-hidden="true"
+                />
+                {!reducedMotion && (
+                  <div className="absolute">
+                    <SparkBurst count={20} minDistance={40} maxDistanceAdd={90} />
+                  </div>
+                )}
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -154,8 +337,9 @@ export default function InvitationGate({
       {/* Nothing from the main site — nav, audio toggle, or content — exists
           in the DOM until the invitation is actually opened. This isn't just
           visually hidden; it isn't mounted, so entrance animations play fresh
-          exactly when revealed instead of finishing silently beforehand. */}
-      {isOpen && (
+          exactly when revealed, cross-fading naturally with the gate's own
+          dissolve above for a continuous "cover becomes the website" feel. */}
+      {contentMounted && (
         <>
           {navigation}
           {children}
