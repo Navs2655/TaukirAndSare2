@@ -40,9 +40,13 @@ export default function Navigation() {
         }`}
       >
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-          <span className="font-heading text-gold text-lg tracking-luxury">
+          <button
+            onClick={() => window.location.reload()}
+            className="font-heading text-gold text-lg tracking-luxury hover:text-champagne transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-4 rounded"
+            aria-label="Return to the invitation cover"
+          >
             T &amp; S
-          </span>
+          </button>
           <ul className="hidden md:flex gap-8">
             {NAV_ITEMS.map((item) => (
               <li key={item.href}>

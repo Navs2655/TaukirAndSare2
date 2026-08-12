@@ -8,6 +8,7 @@ import GlobalStarField from "@/components/layout/GlobalStarField";
 import Preloader from "@/components/layout/Preloader";
 import FilmGrain from "@/components/ui/FilmGrain";
 import AmbientAudioToggle from "@/components/ui/AmbientAudioToggle";
+import ScrollJourneyThread from "@/components/ui/ScrollJourneyThread";
 import { AudioProvider } from "@/components/layout/AudioProvider";
 
 const cormorant = Cormorant_Garamond({
@@ -71,6 +72,7 @@ export default function RootLayout({
             <InvitationGate
               navigation={<Navigation />}
               audioToggle={<AmbientAudioToggle />}
+              scrollThread={<ScrollJourneyThread />}
             >
               {children}
             </InvitationGate>

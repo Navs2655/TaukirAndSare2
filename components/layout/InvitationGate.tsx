@@ -10,9 +10,9 @@ import ArchMotif from "@/components/ui/ArchMotif";
 import JaaliPattern from "@/components/ui/JaaliPattern";
 import GeometricStar from "@/components/ui/GeometricStar";
 import { useAudio } from "@/components/layout/AudioProvider";
+import { vibrate } from "@/utils/vibrate";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const SESSION_KEY = "invitationOpened";
 
 function fadeUp(delay: number) {
   return {
@@ -26,10 +26,12 @@ export default function InvitationGate({
   children,
   navigation,
   audioToggle,
+  scrollThread,
 }: {
   children: ReactNode;
   navigation: ReactNode;
   audioToggle: ReactNode;
+  scrollThread: ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false); // gate fully removed from DOM
   const [contentMounted, setContentMounted] = useState(false); // main site mounted
@@ -51,8 +53,7 @@ export default function InvitationGate({
     ).matches;
     setReducedMotion(prefersReducedMotion);
 
-    const alreadyOpened = sessionStorage.getItem(SESSION_KEY) === "true";
-    if (alreadyOpened || prefersReducedMotion) {
+    if (prefersReducedMotion) {
       setIsOpen(true);
       setContentMounted(true);
     }
@@ -86,8 +87,8 @@ export default function InvitationGate({
   };
 
   const handleOpen = () => {
-    sessionStorage.setItem(SESSION_KEY, "true");
     play();
+    vibrate([50, 30, 80]); // richer pulse for the main "unlock" moment, Android only
 
     if (reducedMotion) {
       setIsOpen(true);
@@ -344,6 +345,7 @@ export default function InvitationGate({
           {navigation}
           {children}
           {audioToggle}
+          {scrollThread}
         </>
       )}
     </>
