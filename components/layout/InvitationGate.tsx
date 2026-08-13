@@ -96,21 +96,22 @@ export default function InvitationGate({
       return;
     }
 
-    // Phase 1 (0–220ms) — the card reacts to the click before anything opens
+    // Phase 1 (0–160ms) — the card reacts to the click before anything opens
     setReacting(true);
 
-    // Phase 2 & 3 (220ms onward) — cover opens, light/particles burst,
+    // Phase 2 & 3 (160ms onward) — cover opens, light/particles burst,
     // layered animations orchestrated via the `opening` flag below
-    setTimeout(() => setOpening(true), 220);
+    setTimeout(() => setOpening(true), 160);
 
     // Main site mounts partway through the gate's own fade, so its entrance
     // animation cross-fades with the dissolving cover instead of popping in
     // after a hard cut.
-    setTimeout(() => setContentMounted(true), 1400);
+    setTimeout(() => setContentMounted(true), 850);
 
     // Gate is fully removed only once its fade+blur animation has actually
-    // finished playing — total sequence lands around 2.6s from the click.
-    setTimeout(() => setIsOpen(true), 2600);
+    // finished playing — total sequence lands around 1.8s from the click,
+    // fast enough to feel responsive while still reading as cinematic.
+    setTimeout(() => setIsOpen(true), 1800);
   };
 
   return (
@@ -127,7 +128,7 @@ export default function InvitationGate({
                 ? { opacity: 0, filter: "blur(10px)" }
                 : { opacity: 1, filter: "blur(0px)" }
             }
-            transition={{ duration: 1, delay: opening ? 1.1 : 0, ease: EASE }}
+            transition={{ duration: 0.7, delay: opening ? 0.6 : 0, ease: EASE }}
           >
             {/* Ambient background layer — jaali texture, soft light, particles */}
             <JaaliPattern className="absolute inset-0 opacity-[0.05]" />
@@ -155,7 +156,7 @@ export default function InvitationGate({
                   ? { scale: 1.12, opacity: 0 }
                   : { scale: 1, opacity: 0.5 }
               }
-              transition={{ duration: 1.3, delay: 0.2, ease: EASE }}
+              transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
               className="absolute w-72 md:w-96 h-[85%] pointer-events-none"
             >
               <ArchMotif className="w-full h-full" />
@@ -182,10 +183,10 @@ export default function InvitationGate({
                 }
                 transition={
                   opening
-                    ? { duration: 1, delay: 0.1, ease: EASE }
+                    ? { duration: 0.65, delay: 0.05, ease: EASE }
                     : reacting
-                    ? { duration: 0.4, ease: EASE }
-                    : { duration: 1.1, ease: EASE }
+                    ? { duration: 0.35, ease: EASE }
+                    : { duration: 0.9, ease: EASE }
                 }
                 className="relative w-full max-w-[300px] sm:max-w-sm px-8 py-12 sm:px-10 sm:py-14"
               >
@@ -204,7 +205,7 @@ export default function InvitationGate({
                 {/* Card content */}
                 <div className="relative flex flex-col items-center text-center">
                   <motion.p
-                    {...fadeUp(0.2)}
+                    {...fadeUp(0.1)}
                     className="font-arabic text-gold text-lg sm:text-xl mb-6"
                     lang="ar"
                     dir="rtl"
@@ -214,7 +215,7 @@ export default function InvitationGate({
 
                   {/* Seal emblem */}
                   <motion.div
-                    {...fadeUp(0.45)}
+                    {...fadeUp(0.2)}
                     animate={
                       reacting
                         ? { scale: [1, 1.12, 1] }
@@ -263,25 +264,29 @@ export default function InvitationGate({
                     animate={
                       opening ? { opacity: 0 } : { opacity: 1, y: 0 }
                     }
-                    transition={{ duration: opening ? 0.5 : 0.9, delay: opening ? 0 : 0.65, ease: EASE }}
+                    transition={{ duration: opening ? 0.4 : 0.7, delay: opening ? 0 : 0.3, ease: EASE }}
                     className="font-body text-champagne/50 text-xs tracking-luxury uppercase mb-1"
                   >
                     You Are Invited
                   </motion.p>
 
-                  <motion.p
+                  <motion.div
                     initial={{ opacity: 0, y: 16 }}
                     animate={
                       opening ? { opacity: 0 } : { opacity: 1, y: 0 }
                     }
-                    transition={{ duration: opening ? 0.5 : 0.9, delay: opening ? 0 : 0.75, ease: EASE }}
-                    className="font-heading text-champagne/70 text-base sm:text-lg mb-10"
+                    transition={{ duration: opening ? 0.4 : 0.7, delay: opening ? 0 : 0.35, ease: EASE }}
+                    className="flex items-center gap-3 mb-10"
                   >
-                    Taukir &amp; Sara
-                  </motion.p>
+                    <span className="w-5 h-px bg-gold/40" />
+                    <span className="font-heading text-champagne/70 text-base sm:text-lg tracking-wide">
+                      Taukir <span className="text-gold text-sm align-middle">♡</span> Sara
+                    </span>
+                    <span className="w-5 h-px bg-gold/40" />
+                  </motion.div>
 
                   {/* Open Invitation — integrated label, not a standard pill button */}
-                  <motion.div {...fadeUp(1)}>
+                  <motion.div {...fadeUp(0.45)}>
                     <Magnetic>
                       <button
                         onClick={handleOpen}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useId } from "react";
-import { motion } from "framer-motion";
 
 export default function CrescentMoon() {
   // Unique ids per instance — prevents duplicate SVG def IDs when this
@@ -12,10 +11,7 @@ export default function CrescentMoon() {
   const maskId = `crescentMask-${uid}`;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.85 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+    <div
       className="relative w-24 h-24 md:w-32 md:h-32"
       aria-hidden="true"
     >
@@ -47,6 +43,6 @@ export default function CrescentMoon() {
           mask={`url(#${maskId})`}
         />
       </svg>
-    </motion.div>
+    </div>
   );
 }

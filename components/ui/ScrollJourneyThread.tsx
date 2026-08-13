@@ -2,6 +2,8 @@
 
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 
+const TRACK_HEIGHT_PX = 260; // matches h-[260px] below
+
 export default function ScrollJourneyThread() {
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, {
@@ -9,19 +11,20 @@ export default function ScrollJourneyThread() {
     damping: 25,
     restDelta: 0.001,
   });
-  const topPercent = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+  // translateY in px — GPU-composited transform instead of animating `top`
+  const markerY = useTransform(smoothProgress, [0, 1], [0, TRACK_HEIGHT_PX]);
 
   return (
     <div
-      className="hidden lg:flex fixed left-6 top-1/2 -translate-y-1/2 z-40 flex-col items-center h-[42vh] pointer-events-none"
+      className="hidden lg:flex fixed left-6 top-1/2 -translate-y-1/2 z-40 flex-col items-center pointer-events-none"
+      style={{ height: TRACK_HEIGHT_PX }}
       aria-hidden="true"
     >
       <div className="relative w-px h-full bg-gold/15">
         <motion.div
-          style={{ top: topPercent }}
-          className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{ y: markerY }}
+          className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0"
         >
-          {/* Small crescent moon marker */}
           <div className="relative w-3 h-3">
             <div
               className="absolute inset-0 rounded-full blur-[3px]"

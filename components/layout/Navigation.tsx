@@ -42,10 +42,10 @@ export default function Navigation() {
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <button
             onClick={() => window.location.reload()}
-            className="font-heading text-gold text-lg tracking-luxury hover:text-champagne transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-4 rounded"
+            className="flex items-center gap-1.5 font-heading text-champagne text-sm sm:text-base tracking-wide hover:text-gold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-4 rounded"
             aria-label="Return to the invitation cover"
           >
-            T &amp; S
+            Taukir <span className="text-gold text-xs">♡</span> Sara
           </button>
           <ul className="hidden md:flex gap-8">
             {NAV_ITEMS.map((item) => (
