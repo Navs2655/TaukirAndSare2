@@ -49,7 +49,7 @@ export default function Hero() {
             "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(31,92,74,0.18) 0%, rgba(9,9,9,0) 60%)",
         }}
       />
-      <FloatingParticles />
+      <FloatingParticles count={12} />
 
       <div className="relative z-10 flex flex-col items-center text-center max-w-3xl">
         <motion.div

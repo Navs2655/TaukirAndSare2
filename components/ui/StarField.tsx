@@ -44,7 +44,7 @@ export default function StarField() {
       canvas!.width = width;
       canvas!.height = height;
 
-      const baseDensity = width < 768 ? 70 : 130;
+      const baseDensity = width < 768 ? 55 : 130;
       const density = isSlowConnection
         ? Math.ceil(baseDensity / 2)
         : baseDensity;

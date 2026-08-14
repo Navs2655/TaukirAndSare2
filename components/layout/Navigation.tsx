@@ -36,7 +36,7 @@ export default function Navigation() {
       <nav
         aria-label="Primary"
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
-          scrolled ? "bg-background/80 backdrop-blur-md py-3" : "bg-transparent py-6"
+          scrolled ? "bg-background/95 py-3" : "bg-transparent py-6"
         }`}
       >
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">

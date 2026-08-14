@@ -124,11 +124,9 @@ export default function InvitationGate({
               opening ? "pointer-events-none" : ""
             }`}
             animate={
-              opening
-                ? { opacity: 0, filter: "blur(10px)" }
-                : { opacity: 1, filter: "blur(0px)" }
+              opening ? { opacity: 0 } : { opacity: 1 }
             }
-            transition={{ duration: 0.7, delay: opening ? 0.6 : 0, ease: EASE }}
+            transition={{ duration: 0.7, delay: opening ? 0.75 : 0, ease: EASE }}
           >
             {/* Ambient background layer — jaali texture, soft light, particles */}
             <JaaliPattern className="absolute inset-0 opacity-[0.05]" />
@@ -331,7 +329,7 @@ export default function InvitationGate({
                 />
                 {!reducedMotion && (
                   <div className="absolute">
-                    <SparkBurst count={20} minDistance={40} maxDistanceAdd={90} />
+                    <SparkBurst count={12} minDistance={40} maxDistanceAdd={80} />
                   </div>
                 )}
               </>
