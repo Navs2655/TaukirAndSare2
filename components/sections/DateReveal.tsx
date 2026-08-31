@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 import GeometricStar from "@/components/ui/GeometricStar";
 import SparkBurst from "@/components/ui/SparkBurst";
+import ScrollCue from "@/components/ui/ScrollCue";
 import { vibrate } from "@/utils/vibrate";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -16,12 +17,6 @@ const DRAG_MAX = 90;
 const DRAG_THRESHOLD = 52;
 
 export default function DateReveal() {
-  // `revealed` is the single source of truth for whether the date is shown.
-  // The date's own visibility is driven purely by this boolean via a plain
-  // CSS opacity transition below — deliberately NOT tied to any Framer
-  // Motion value shared with the seal's drag/crack visuals, so a glitch or
-  // interruption in the decorative seal animation can never leave the date
-  // hidden. The seal is cosmetic; `revealed` is the only thing that matters.
   const [revealed, setRevealed] = useState(false);
   const [burstKey, setBurstKey] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -38,12 +33,11 @@ export default function DateReveal() {
 
   const completeReveal = () => {
     setRevealed((prev) => {
-      if (prev) return prev; // idempotent — safe against repeated triggers
+      if (prev) return prev;
       setBurstKey((k) => k + 1);
       vibrate(40);
       return true;
     });
-    // Seal's own visual snap-open — purely decorative, doesn't gate the date
     animateValue(dragX, DRAG_MAX * 1.6, {
       type: "spring",
       stiffness: 200,
@@ -52,12 +46,8 @@ export default function DateReveal() {
   };
 
   const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
-    // Checks both the reported offset and the motion value's own resting
-    // position — belt-and-braces against any discrepancy between the two
-    // on fast or interrupted gestures.
     const crossedThreshold =
       info.offset.x > DRAG_THRESHOLD || dragX.get() > DRAG_THRESHOLD * 0.85;
-
     if (crossedThreshold) {
       completeReveal();
     } else {
@@ -116,10 +106,6 @@ export default function DateReveal() {
           }
           className="relative w-40 h-40 md:w-52 md:h-52 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-8 rounded-full cursor-pointer"
         >
-          {/* GUARANTEED date layer — always mounted, plain CSS opacity
-              transition driven only by `revealed`. This is the fallback
-              that cannot fail: no motion values, no animation library
-              state, nothing that can race or get interrupted. */}
           <div
             className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-700 ease-out ${
               revealed ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -133,8 +119,6 @@ export default function DateReveal() {
             </span>
           </div>
 
-          {/* Live drag preview — decorative only, pre-reveal, sits below
-              the guaranteed layer and is superseded by it once revealed */}
           {!revealed && (
             <motion.div
               style={{ opacity: dragProgress }}
@@ -150,14 +134,12 @@ export default function DateReveal() {
             </motion.div>
           )}
 
-          {/* Spark burst, one-shot — skipped for reduced motion */}
           {revealed && !reducedMotion && (
             <div key={burstKey} className="absolute inset-0 pointer-events-none">
               <SparkBurst />
             </div>
           )}
 
-          {/* Left half — static */}
           <div className="absolute inset-0 overflow-hidden rounded-l-full pointer-events-none">
             <motion.div
               animate={
@@ -176,7 +158,6 @@ export default function DateReveal() {
             />
           </div>
 
-          {/* Right half — the draggable "peel" */}
           <div className="absolute inset-0 overflow-visible rounded-r-full">
             <motion.div
               drag={revealed ? false : "x"}
@@ -204,7 +185,6 @@ export default function DateReveal() {
             </motion.div>
           </div>
 
-          {/* Whole star motif, centered — fades out as the halves part */}
           <motion.div
             animate={revealed ? { opacity: 0, scale: 1.15 } : { scale: 1 }}
             style={{ opacity: revealed ? undefined : starOpacity }}
@@ -216,7 +196,6 @@ export default function DateReveal() {
             </div>
           </motion.div>
 
-          {/* Ambient pulse while unrevealed — skipped for reduced motion */}
           {!revealed && !reducedMotion && (
             <motion.span
               className="absolute inset-0 rounded-full pointer-events-none"
@@ -240,6 +219,8 @@ export default function DateReveal() {
         >
           {revealed ? "The date is set" : "Drag or Tap to Reveal"}
         </motion.p>
+
+        {revealed && <ScrollCue label="Their Story Continues" />}
       </div>
     </section>
   );

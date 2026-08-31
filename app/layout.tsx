@@ -35,16 +35,16 @@ const amiri = Amiri({
 export const metadata: Metadata = {
   title: "Taukir & Sara | Nikah — 10th November 2026",
   description:
-    "Join us in celebrating the Nikah of Taukir & Sara on 10th November 2026 at Jumma Masjid, Junadeesa.",
+    "Join us in celebrating the Nikah of Taukir & Sara on 10th November 2026 at Ameena Masjid, Junadeesa.",
   openGraph: {
     title: "Taukir & Sara's Nikah",
-    description: "10th November 2026 • Jumma Masjid, Junadeesa",
+    description: "10th November 2026 • Ameena Masjid, Junadeesa",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Taukir & Sara's Nikah",
-    description: "10th November 2026 • Jumma Masjid, Junadeesa",
+    description: "10th November 2026 • Ameena Masjid, Junadeesa",
   },
 };
 
