@@ -7,13 +7,12 @@ export default function ScrollCue({ label }: { label?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: "-40% 0px" }}
-      transition={{ duration: 0.8, delay: 0.5 }}
-      className="relative z-10 flex flex-col items-center gap-1.5 mt-16 motion-reduce:hidden"
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.25 }}
+      className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 motion-reduce:hidden"
     >
       {label && (
-        <span className="font-body text-champagne/30 text-[10px] tracking-luxury uppercase">
+        <span className="font-body text-champagne/30 text-[10px] tracking-luxury uppercase whitespace-nowrap">
           {label}
         </span>
       )}
