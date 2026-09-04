@@ -84,19 +84,19 @@ export default function Closing() {
       </motion.p>
 
       {/* Closing seal — a quiet echo of the Date Reveal's wax seal motif,
-          bookending the journey (opens with a seal, closes with one).
-          Deliberately static/ambient, not another interaction to perform. */}
+          bookending the journey (opens with a seal, closes with one). */}
       <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 1.2, delay: 1.1, ease: EASE }}
-        className="relative z-10 mt-8 w-9 h-9 md:w-10 md:h-10"
+        transition={{ duration: 1, delay: 0.9, ease: EASE }}
+        className="relative z-10 mt-10 w-14 h-14 md:w-16 md:h-16 rounded-full border border-gold/30 flex items-center justify-center"
         aria-hidden="true"
       >
         <motion.div
-          animate={{ opacity: [0.2, 0.35, 0.2] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          className="w-8 h-8 md:w-9 md:h-9"
+          animate={{ opacity: [0.55, 0.85, 0.55] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         >
           <GeometricStar className="w-full h-full" />
         </motion.div>
