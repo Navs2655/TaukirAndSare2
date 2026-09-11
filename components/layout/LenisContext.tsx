@@ -2,16 +2,10 @@
 
 import { createContext, useContext } from "react";
 
-interface LenisScrollOptions {
-  duration?: number;
-  offset?: number;
-}
-
 interface LenisContextValue {
-  scrollTo: (target: string | HTMLElement, options?: LenisScrollOptions) => void;
+  scrollTo: (target: string | HTMLElement, options?: { duration?: number; offset?: number }) => void;
 }
 
-// Fallback (used before Lenis initializes, or if reduced-motion skipped it)
 export const LenisContext = createContext<LenisContextValue>({
   scrollTo: (target) => {
     const el =

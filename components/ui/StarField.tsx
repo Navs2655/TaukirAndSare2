@@ -59,6 +59,13 @@ export default function StarField() {
     }
 
     function draw(time: number) {
+      // Skip work entirely while the tab isn't visible - avoids burning
+      // CPU/battery in a background tab, and avoids a jank spike when
+      // returning to the tab after a large elapsed 'time' jump.
+      if (document.hidden) {
+        animationId = requestAnimationFrame(draw);
+        return;
+      }
       ctx!.clearRect(0, 0, width, height);
       for (const star of stars) {
         const alpha = prefersReducedMotion

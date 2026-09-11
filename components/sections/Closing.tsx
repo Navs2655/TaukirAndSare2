@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import CrescentMoon from "@/components/ui/CrescentMoon";
+import GeometricStar from "@/components/ui/GeometricStar";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -81,6 +82,25 @@ export default function Closing() {
       >
         Taukir &amp; Sara — 10.11.2026
       </motion.p>
+
+      {/* Closing seal — a quiet echo of the Date Reveal's scratch-card date
+          motif, bookending the journey. */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1, delay: 0.9, ease: EASE }}
+        className="relative z-10 mt-10 w-14 h-14 md:w-16 md:h-16 rounded-full border border-gold/30 flex items-center justify-center"
+        aria-hidden="true"
+      >
+        <motion.div
+          className="w-8 h-8 md:w-9 md:h-9"
+          animate={{ opacity: [0.55, 0.85, 0.55] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <GeometricStar className="w-full h-full" />
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

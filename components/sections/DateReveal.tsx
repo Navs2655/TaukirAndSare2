@@ -8,7 +8,7 @@ import ScrollCue from "@/components/ui/ScrollCue";
 import { vibrate } from "@/utils/vibrate";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const REVEAL_THRESHOLD = 0.5; // 50% scratched triggers auto-reveal
+const REVEAL_THRESHOLD = 0.3; // 30% scratched triggers auto-reveal
 const BRUSH_RADIUS = 24;
 const MASK_W = 48; // tiny sampling canvas - cheap to read regardless of device
 const MASK_H = 28;
@@ -44,6 +44,15 @@ export default function DateReveal() {
     maskCanvasRef.current = document.createElement("canvas");
     maskCanvasRef.current.width = MASK_W;
     maskCanvasRef.current.height = MASK_H;
+    // Critical: fill with an opaque base first. Without this, a brand-new
+    // canvas starts fully transparent by default, meaning the very first
+    // progress check would already read as 100% "scratched" regardless of
+    // any actual scratching — this was the bug causing instant reveal.
+    const initialMaskCtx = maskCanvasRef.current.getContext("2d");
+    if (initialMaskCtx) {
+      initialMaskCtx.fillStyle = "#000";
+      initialMaskCtx.fillRect(0, 0, MASK_W, MASK_H);
+    }
 
     function draw() {
       const rect = container!.getBoundingClientRect();

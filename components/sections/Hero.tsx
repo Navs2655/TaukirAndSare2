@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react";
 import CrescentMoon from "@/components/ui/CrescentMoon";
 import FloatingParticles from "@/components/ui/FloatingParticles";
 import Magnetic from "@/components/ui/Magnetic";
+import { useLenisScroll } from "@/components/layout/LenisContext";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -28,12 +29,13 @@ export default function Hero() {
   const moonY = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
   const moonOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.3]);
 
+  const { scrollTo } = useLenisScroll();
+
   const handleBeginJourney = () => {
     // Begin Journey leads into the date reveal first — an important part of
-    // the invitation's journey, not a step to skip past.
-    document
-      .getElementById("date-reveal")
-      ?.scrollIntoView({ behavior: "smooth" });
+    // the invitation's journey, not a step to skip past. Uses Lenis's own
+    // scrollTo so it doesn't fight with Lenis's own scroll loop elsewhere.
+    scrollTo("#date-reveal");
   };
 
   return (
