@@ -1,5 +1,5 @@
 function formatICSDate(date: string, time: string) {
-  // Returns e.g. 20261110T133000 — floating local time with an
+  // Returns e.g. 20261110T141500 — floating local time with an
   // Asia/Kolkata TZID reference, which Google/Apple/Outlook all resolve
   // correctly without needing a full embedded VTIMEZONE block.
   return `${date}T${time}`;
@@ -22,18 +22,19 @@ const EVENTS: EventDef[] = [
   {
     summary: "Taukir & Sara's Nikah",
     description:
-      "Nikah ceremony after Zuhr prayer. Join us in celebrating Taukir and Sara's Nikah.",
-    location: "Jumma Masjid, Junadeesa",
+      "Nikah ceremony after Zuhr prayer, 2:15 PM. Join us in celebrating Taukir and Sara's Nikah. Directions: https://maps.app.goo.gl/mTnBnmHPFRZJh4vx8",
+    location: "Ameena Masjid, Junadeesa",
     startDate: "20261110",
-    startTime: "133000",
-    endTime: "153000",
+    startTime: "141500",
+    endTime: "161500",
   },
   {
     summary: "Taukir & Sara's Walima",
-    description: "Walima reception. Join us in celebrating Taukir and Sara.",
-    location: "Junadeesa",
+    description:
+      "Walima reception, 11:00 AM until your arrival. Join us in celebrating Taukir and Sara. Directions: https://maps.app.goo.gl/CDnQmfF5giLV1XsD8",
+    location: "Madrasa near Ameena Masjid",
     startDate: "20261111",
-    startTime: "120000",
+    startTime: "110000",
     endTime: "150000",
   },
 ];

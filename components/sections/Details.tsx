@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Moon, Sparkles, MapPin, CalendarPlus } from "lucide-react";
 import { downloadNikahCalendar } from "@/utils/calendar";
+import ScrollCue from "@/components/ui/ScrollCue";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -13,7 +14,7 @@ interface EventInfo {
   date: string;
   time: string;
   venue: string;
-  mapQuery: string;
+  mapUrl: string;
 }
 
 const EVENTS: EventInfo[] = [
@@ -21,26 +22,23 @@ const EVENTS: EventInfo[] = [
     icon: <Moon className="w-6 h-6" />,
     label: "Nikah",
     date: "10th November 2026",
-    time: "After Zuhr",
-    venue: "Jumma Masjid, Junadeesa",
-    mapQuery: "Jumma Masjid, Junadeesa",
+    time: "After Zuhr — 2:15 PM",
+    venue: "Ameena Masjid, Junadeesa",
+    mapUrl: "https://maps.app.goo.gl/mTnBnmHPFRZJh4vx8",
   },
   {
     icon: <Sparkles className="w-6 h-6" />,
     label: "Walima",
     date: "11th November 2026",
-    time: "12:00 PM",
-    venue: "Junadeesa",
-    mapQuery: "Junadeesa",
+    time: "11:00 AM Until Your Arrival",
+    venue: "Madrasa near Ameena Masjid",
+    mapUrl: "https://maps.app.goo.gl/CDnQmfF5giLV1XsD8",
   },
 ];
 
 function EventCard({ event, index }: { event: EventInfo; index: number }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-15% 0px" });
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    event.mapQuery
-  )}`;
 
   return (
     <motion.div
@@ -65,7 +63,7 @@ function EventCard({ event, index }: { event: EventInfo; index: number }) {
         {event.venue}
       </p>
       <a
-        href={mapsUrl}
+        href={event.mapUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-2 text-xs tracking-luxury uppercase text-champagne/70 border-b border-gold/40 pb-0.5 hover:text-gold hover:border-gold transition-colors duration-300"
@@ -140,6 +138,8 @@ export default function Details() {
         <CalendarPlus className="w-4 h-4" />
         Add to Calendar
       </motion.button>
+
+      <ScrollCue />
     </section>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import GeometricStar from "@/components/ui/GeometricStar";
+import ScrollCue from "@/components/ui/ScrollCue";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const AUTO_ADVANCE_MS = 7000;
@@ -123,6 +124,8 @@ export default function Blessings() {
           />
         ))}
       </div>
+
+      <ScrollCue />
     </section>
   );
 }

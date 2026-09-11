@@ -1,15 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import CrescentMoon from "@/components/ui/CrescentMoon";
 import FloatingParticles from "@/components/ui/FloatingParticles";
 import Magnetic from "@/components/ui/Magnetic";
-import { useLenisScroll } from "@/components/layout/LenisContext";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
+// Compressed stagger — everything appears within ~1s instead of ~2.6s.
+// Text now starts almost immediately alongside the moon, not after it.
 function fadeUp(delay: number) {
   return {
     initial: { opacity: 0, y: 18 },
@@ -27,20 +28,12 @@ export default function Hero() {
   const moonY = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
   const moonOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.3]);
 
-  const { scrollTo } = useLenisScroll();
-  const [transitioning, setTransitioning] = useState(false);
-
   const handleBeginJourney = () => {
-    // Brief tasteful flash — gives the transition a deliberate, intentional
-    // feel and smooths over the first frame or two of scroll on slower
-    // devices, rather than a jarring instant jump.
-    setTransitioning(true);
-    setTimeout(() => setTransitioning(false), 550);
-
-    // Uses Lenis's own scrollTo instead of native scrollIntoView, so it
-    // doesn't fight with Lenis's own smooth-scroll loop running elsewhere
-    // on the page — that conflict was the likely cause of the iOS lag here.
-    scrollTo("#date-reveal");
+    // Begin Journey leads into the date reveal first — an important part of
+    // the invitation's journey, not a step to skip past.
+    document
+      .getElementById("date-reveal")
+      ?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -57,24 +50,6 @@ export default function Hero() {
         }}
       />
       <FloatingParticles count={12} />
-
-      {/* Brief gold flash on Begin Journey click */}
-      <AnimatePresence>
-        {transitioning && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.35, 0] }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.55, ease: EASE }}
-            className="fixed inset-0 z-50 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(circle at 50% 60%, rgba(200,162,79,0.5) 0%, rgba(200,162,79,0) 70%)",
-            }}
-            aria-hidden="true"
-          />
-        )}
-      </AnimatePresence>
 
       <div className="relative z-10 flex flex-col items-center text-center max-w-3xl">
         <motion.div
@@ -102,6 +77,7 @@ export default function Hero() {
           In the name of Allah, the Most Gracious, the Most Merciful
         </motion.p>
 
+        {/* Primary formal title — the strongest name treatment on the site */}
         <motion.h1
           {...fadeUp(0.35)}
           className="font-heading text-4xl xs:text-5xl sm:text-6xl md:text-8xl leading-none"

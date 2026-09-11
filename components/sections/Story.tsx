@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import ScrollCue from "@/components/ui/ScrollCue";
+
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 // EDIT ME: replace with the real story
@@ -87,7 +88,8 @@ export default function Story() {
           ))}
         </div>
       </div>
-    <ScrollCue />
+
+      <ScrollCue />
     </section>
   );
 }

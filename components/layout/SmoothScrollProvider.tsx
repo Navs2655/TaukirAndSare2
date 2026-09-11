@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useCallback, ReactNode } from "react";
+import { useEffect, useRef, ReactNode } from "react";
 import Lenis from "@studio-freight/lenis";
-import { LenisContext } from "@/components/layout/LenisContext";
 
 export default function SmoothScrollProvider({
   children,
@@ -12,6 +11,7 @@ export default function SmoothScrollProvider({
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    // Respect users who prefer reduced motion — skip custom smooth scroll
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
@@ -35,32 +35,8 @@ export default function SmoothScrollProvider({
 
     return () => {
       lenis.destroy();
-      lenisRef.current = null;
     };
   }, []);
 
-  const scrollTo = useCallback(
-    (target: string | HTMLElement, options?: { duration?: number; offset?: number }) => {
-      const lenis = lenisRef.current;
-      if (lenis) {
-        lenis.scrollTo(target, {
-          duration: 1.4,
-          easing: (t: number) => 1 - Math.pow(1 - t, 3),
-          ...options,
-        });
-      } else {
-        // Reduced motion, or Lenis hasn't initialized yet — plain fallback
-        const el =
-          typeof target === "string" ? document.querySelector(target) : target;
-        el?.scrollIntoView({ behavior: "smooth" });
-      }
-    },
-    []
-  );
-
-  return (
-    <LenisContext.Provider value={{ scrollTo }}>
-      {children}
-    </LenisContext.Provider>
-  );
+  return <>{children}</>;
 }

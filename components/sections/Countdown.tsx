@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import ScrollCue from "@/components/ui/ScrollCue";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// Nikah: 10th November 2026, after Zuhr — using a mid-afternoon anchor time
-// since "after Zuhr" isn't a fixed clock time. Adjust the hour below if needed.
-const NIKAH_DATE = new Date("2026-11-10T13:30:00+05:30");
+// Nikah: 10th November 2026, 2:15 PM IST (after Zuhr)
+const NIKAH_DATE = new Date("2026-11-10T14:15:00+05:30");
 
 function getTimeLeft() {
   const diff = NIKAH_DATE.getTime() - Date.now();
@@ -120,8 +120,10 @@ export default function Countdown() {
         transition={{ duration: 0.9, delay: 0.4 }}
         className="relative font-body text-champagne/40 text-sm tracking-wide mt-14"
       >
-        10th November 2026 · Jumma Masjid, Junadeesa
+        10th November 2026 · Ameena Masjid, Junadeesa
       </motion.p>
+
+      <ScrollCue />
     </section>
   );
 }
